@@ -3,7 +3,7 @@
 # This file is distributed under the same license as the yaourt package.
 # Tuxce <tuxce.net@gmail.com>, 2010-2015
 # Julien MISCHKOWITZ <wain@archlinux.fr>, 2010
-# 
+#
 # Translators:
 # tuxce  <tuxce.net@gmail.com>, 2015.
 msgid ""
@@ -478,7 +478,11 @@ msgstr "Espace utilisé par les paquets en cache :"
 msgid "Space used by src downloaded in cache:"
 msgstr "Espace utilisé par les sources en cache :"
 
-#: ../../lib/aur.sh:18 ../../lib/aur.sh:40
+#: ../../lib/aur.sh:21
+msgid "%s not found in AUR4. Retry on AUR previous version."
+msgstr "%s non trouvé sur AUR4. Réessaye sur la version précédente de AUR."
+
+#: ../../lib/aur.sh:23 ../../lib/aur.sh:47
 msgid "%s not found in AUR."
 msgstr "%s non trouvé sur AUR."
 

@@ -14,10 +14,15 @@ aur_get_pkgbuild() {
 	[[ $1 ]] || return 1
 	local pkg=${1#*/}
 	local pkgurl=$2
+	local pkgurl4=$3
+	[[ -z "$pkgurl4" ]] && pkgurl4=$(pkgquery -Aif "%x" "$pkg")
 	[[ -z "$pkgurl" ]] && pkgurl=$(pkgquery -Aif "%u" "$pkg")
-	if [[ ! "$pkgurl" ]] || ! curl_fetch -fs "$pkgurl" -o "$pkg.tar.gz"; then
-		error $(_gettext '%s not found in AUR.' "$pkg");
-		return 1;
+	if [[ ! "$pkgurl4" ]] || ! curl_fetch -fs "$pkgurl4" -o "$pkg.tar.gz"; then
+		warning $(_gettext '%s not found in AUR4. Retry on AUR previous version.' "$pkg");
+		if [[ ! "$pkgurl" ]] || ! curl_fetch -fs "$pkgurl" -o "$pkg.tar.gz"; then
+			error $(_gettext '%s not found in AUR.' "$pkg");
+			return 1;
+		fi
 	fi
 	bsdtar --strip-components 1 -xvf "$pkg.tar.gz"
 	rm "$pkg.tar.gz"
@@ -160,7 +165,7 @@ vote_package() {
 # give to user all info to build and install Unsupported package from AUR
 install_from_aur() {
 	local cwd
-	declare -a pkginfo=($(pkgquery -1Aif "%n %i %v %w %o %u %m %l %L" "$1"))
+	declare -a pkginfo=($(pkgquery -1Aif "%n %i %v %w %o %u %m %l %L %x" "$1"))
 	[[ "${pkginfo[1]#-}" ]] || return 1
 	in_array ${pkginfo[0]} "${AUR_INSTALLED_PKGS[@]}" && return 0
 	title $(_gettext 'Installing %s from AUR' "${pkginfo[0]}")
@@ -168,7 +173,7 @@ install_from_aur() {
 	init_build_dir "$YAOURTTMPDIR/aur-${pkginfo[0]}" || return 1
 	echo
 	msg $(_gettext 'Downloading %s PKGBUILD from AUR...' "${pkginfo[0]}")
-	aur_get_pkgbuild "${pkginfo[0]}" "${pkginfo[5]}" ||
+	aur_get_pkgbuild "${pkginfo[0]}" "${pkginfo[5]}" "${pkginfo[9]}" ||
 	  { cd "$cwd"; return 1; }
 	aur_comments ${pkginfo[0]}
 	echo -e "$CBOLD${pkginfo[0]} ${pkginfo[2]} $C0 ($(date -u -d "@${pkginfo[8]}" "+%F %H:%M"))"
